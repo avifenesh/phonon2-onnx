@@ -213,7 +213,7 @@ VIRTUAL_ENV=.venv uv pip install --index-url https://download.pytorch.org/whl/cp
   --index-strategy unsafe-best-match "torch==2.14.1+cpu" "transformers==5.18.0" "fermion-research==0.2.4" \
   onnx==1.23.1 onnxscript "onnxruntime==1.23.*" onnx-asr==0.12.0 numpy soundfile scipy pyarrow
 R="nice -n 19 taskset -c 0-3 env OMP_NUM_THREADS=4"
-$R .venv/bin/python tools/fetch_clips.py                 # work/manifest.jsonl (PHONON2_PRIVATE_CLIPS=/tmp/parley-turns)
+$R .venv/bin/python tools/fetch_clips.py                 # work/manifest.jsonl (set PHONON2_PRIVATE_CLIPS=<dir> to add your own WAVs)
 $R .venv/bin/python tools/fermion_ref.py fp32 --dump ls_1272-141231-0000,ls_1272-128104-0004,own_1790825456375
 $R .venv/bin/python tools/fermion_ref.py default --dump ls_1272-141231-0000,ls_1272-128104-0004,own_1790825456375
 $R .venv/bin/python tools/export.py                      # dist/ fp32 graphs + vocab.txt + config.json (~5.4 GB peak RSS)

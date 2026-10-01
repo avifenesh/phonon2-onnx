@@ -2,7 +2,7 @@
 
 Public clips: the 73 LibriSpeech dev-clean utterances in hf-internal-testing/librispeech_asr_dummy
 (LibriSpeech is CC-BY-4.0), written as 16 kHz mono PCM16 WAV under work/clips/.
-Private clips: every 16 kHz WAV in /tmp/parley-turns/ (the owner's speech), referenced by path only,
+Private clips: every 16 kHz WAV in $PHONON2_PRIVATE_CLIPS (your own speech), referenced by path only,
 never copied into the repo. They have no ground-truth text.
 
 Writes work/manifest.jsonl: {"id", "path", "ref" (str or null), "source"}.
@@ -20,7 +20,7 @@ from huggingface_hub import hf_hub_download
 
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / "work"
-PRIVATE_DIR = os.environ.get("PHONON2_PRIVATE_CLIPS", "/tmp/parley-turns")
+PRIVATE_DIR = os.environ.get("PHONON2_PRIVATE_CLIPS", "")
 
 
 def main():
@@ -35,7 +35,7 @@ def main():
         if not out.exists():
             sf.write(out, a, 16000, subtype="PCM_16")
         rows.append({"id": f"ls_{r['id']}", "path": str(out), "ref": r["text"], "source": "librispeech-dev-clean"})
-    for f in sorted(glob.glob(f"{PRIVATE_DIR}/*.wav")):
+    for f in sorted(glob.glob(f"{PRIVATE_DIR}/*.wav") if PRIVATE_DIR else []):
         info = sf.info(f)
         assert info.samplerate == 16000 and info.channels == 1, f
         rows.append({"id": "own_" + Path(f).stem, "path": f, "ref": None, "source": "private"})
