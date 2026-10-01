@@ -24,7 +24,7 @@ derived from NVIDIA's [Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parak
 The fp32 export reproduces Fermion's exact (fp32) runtime token for token on all 82 test clips.
 The graphs follow the [onnx-asr](https://github.com/istupakov/onnx-asr) `nemo-conformer-tdt` layout,
 plus one graph for Phonon-2's own front end. This is the speech recognizer in
-[parlar](https://github.com/avifenesh/parlar), a voice mode for coding agents, which runs it from Rust.
+[parlar](https://github.com/agent-sh/parlar), a voice mode for coding agents, which runs it from Rust.
 
 ## Files
 
