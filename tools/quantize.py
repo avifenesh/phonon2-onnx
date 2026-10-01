@@ -8,6 +8,8 @@
                    fp32 export's weight bit for bit (checked here for every tensor). Cost: 8 bits per weight, because
                    ORT 1.23's CPU MatMulNBits only implements 4 and 8 bits (2-bit planes fail at session creation).
                    Everything else (subsampling, depthwise convs, norms, the int6 subsampling linear) stays fp32.
+  --mode exact4x2a4  Same weights, accuracy_level=4: MLAS quantizes the activations to int8 inside MatMulNBits
+                   (faster, no longer exact arithmetic; the weights are still exact).
   --mode int8      onnxruntime.quantization.quantize_dynamic, per-channel QInt8 weights, uint8 dynamic activations.
 
 Writes dist/encoder-model.<mode>.onnx and a dist/decoder_joint-model.<mode>.onnx symlink to the fp32 decoder (onnx-asr
@@ -55,7 +57,7 @@ def pack4(codes, K):
     return p.reshape(N, K // BLOCK, BLOCK // 2)
 
 
-def exact4x2(src, dst):
+def exact4x2(src, dst, accuracy_level=0):
     m = onnx.load(str(src))
     inits = {i.name: i for i in m.graph.initializer}
     new_nodes, drop, add_inits, n_done, max_err = [], set(), [], 0, 0.0
@@ -90,7 +92,7 @@ def exact4x2(src, dst):
             xt = f"{base}_xT"; pre.append(helper.make_node("Transpose", [x], [xt], perm=[0, 2, 1], name=f"{base}_inT")); x = xt
         y2, ya, yb = f"{base}_y2", f"{base}_ya", f"{base}_yb"
         mm = helper.make_node("MatMulNBits", [x, bn, sn], [y2], domain="com.microsoft", K=K, N=2 * N, bits=4,
-                              block_size=BLOCK, name=f"{base}_mmnb")
+                              block_size=BLOCK, accuracy_level=accuracy_level, name=f"{base}_mmnb")
         split = helper.make_node("Split", [y2, f"{base}_splitsz"], [ya, yb], axis=-1, name=f"{base}_split")
         add_inits.append(numpy_helper.from_array(np.array([N, N], np.int64), f"{base}_splitsz"))
         ysum = f"{base}_ysum" if node.op_type == "Conv" else y
@@ -144,12 +146,12 @@ def int8(src, dst):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--mode", choices=["exact4x2", "int8"], required=True)
+    ap.add_argument("--mode", choices=["exact4x2", "exact4x2a4", "int8"], required=True)
     ap.add_argument("--dist", default=str(ROOT / "dist"))
     a = ap.parse_args()
     dist = Path(a.dist)
     src = dist / "encoder-model.onnx"; dst = dist / f"encoder-model.{a.mode}.onnx"
-    {"exact4x2": exact4x2, "int8": int8}[a.mode](src, dst)
+    {"exact4x2": exact4x2, "exact4x2a4": lambda s_, d_: exact4x2(s_, d_, accuracy_level=4), "int8": int8}[a.mode](src, dst)
     link = dist / f"decoder_joint-model.{a.mode}.onnx"
     if link.is_symlink() or link.exists():
         link.unlink()
