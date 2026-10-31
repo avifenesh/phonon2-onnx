@@ -4,7 +4,7 @@ ONNX export of Fermion Research's Phonon-2 speech recognizer, for ONNX Runtime 1
 The graphs follow the onnx-asr `nemo-conformer-tdt` layout (the same layout as the onnx-asr export of parakeet-tdt-0.6b-v3), plus one extra graph for the front end.
 Parity is checked against Fermion's own runtime (`fermion-research` 0.2.4) on 82 clips.
 
-Nothing here is uploaded or published. The ONNX files live in `dist/`, which is gitignored. Rebuild them with the commands under "Reproduce".
+The export is published as [tiyuvta/Phonon-2-ONNX](https://huggingface.co/tiyuvta/Phonon-2-ONNX) on Hugging Face, with the model card from `hf/README.md`. Locally the ONNX files live in `dist/`, which is gitignored. Rebuild them with the commands under "Reproduce".
 
 ## Provenance and license
 
