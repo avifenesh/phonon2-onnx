@@ -96,6 +96,6 @@ should be cut at pauses, as Fermion's runtime does.
 
 CC-BY-4.0, as Phonon-2 and Parakeet TDT 0.6B v3.
 
-Parakeet TDT 0.6B v3 by NVIDIA; Phonon-2 by Fermion Research; ONNX conversion by Tiyuvta.
+Parakeet TDT 0.6B v3 by NVIDIA; Phonon-2 by Fermion Research; ONNX conversion by Avi Fenesh.
 The changes made here are listed under "How it was made". Fermion's NOTICE, including the training
 data it lists, is reproduced in `NOTICE`.
